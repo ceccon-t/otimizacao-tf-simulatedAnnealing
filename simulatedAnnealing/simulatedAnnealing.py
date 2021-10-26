@@ -18,14 +18,14 @@ def parse_int_pair(s: str) -> 'tuple[int]':
     return (a, b)
 
 
-def adiciona_aresta(A, u, v):
-    A[u][v] = 1
-    A[v][u] = 1
+def adiciona_aresta(M, u, v):
+    M[u][v] = 1
+    M[v][u] = 1
 
 
-def remove_aresta(A, u, v):
-    A[u][v] = 0
-    A[v][u] = 0
+def remove_aresta(M, u, v):
+    M[u][v] = 0
+    M[v][u] = 0
     
 
 # Algumas instancias de escala variada para facilitar testes
