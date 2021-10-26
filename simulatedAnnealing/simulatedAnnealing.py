@@ -99,7 +99,7 @@ medium_instance = 'induced_200_5970.dat'
 large_instance = 'induced_700_122325.dat'
 
 # TODO: aceitar parametro passado na linha de comando com nome da instancia desejada
-filename = small_instance
+filename = medium_instance
 
 # Caminho completo ate arquivo da instancia utilizada
 filepath = os.path.join('..', 'dados', 'instancias', filename)
@@ -137,24 +137,43 @@ with open(filepath, 'r') as instancia:
 
 # Generate initial solution
 # Add-1
+print('Starting Add-1: Trying to add single vertices on initial solution')
 for i in range(total_vertices):
     v = itov(i)
     tentative_solution = set(initial_solution)
     tentative_solution.add(v)
     if is_valid_solution_full(tentative_solution):
         initial_solution = set(tentative_solution)
+print(f'Finished Add-1, size of initial solution: {len(initial_solution)}')
+# Add-2
+use_add_2 = True    # Doesnt make any difference for small solution, makes small difference for medium and large solutions
+if use_add_2:
+    print('Starting Add-2: Trying to add pairs of vertices on initial solution')
+    all_vertices = set(range(total_vertices))
+    # print(f'All vertices: {all_vertices}')
+    excluded_vertices = all_vertices.difference(initial_solution)
+    for j in excluded_vertices:
+        for i in excluded_vertices.difference(set([j])):
+            v = itov(i)
+            u = itov(j)
+            tentative_solution = set(initial_solution)
+            tentative_solution.add(v)
+            tentative_solution.add(u)
+            if is_valid_solution_full(tentative_solution):
+                initial_solution = set(tentative_solution)
+    print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
 
 
-# TODO: Logica do algoritmo
+# TODO: Algorithm logic
 
 
-print('Matrix with original instance data:')
-print(original_graph)
+# print('Matrix with original instance data:')
+# print(original_graph)
 
 print(f'Initial solution: {initial_solution}')
 print(f'Size of initial solution: {len(initial_solution)}')
 
-print(f'Total number of verticies on instance: {total_vertices}')
+print(f'Total number of vertices on instance: {total_vertices}')
 print(f'Total number of edges on instance: {total_edges}')
 
 print('Cest fini.')
