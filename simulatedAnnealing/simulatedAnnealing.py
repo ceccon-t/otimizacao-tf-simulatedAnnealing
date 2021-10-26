@@ -42,6 +42,17 @@ def remove_aresta(M, u, v):
 # TODO: funcao para calcular grau de um vertice em uma solucao especifica
 
 
+# Parametros
+# TODO: (talvez) permitir que sejam passados pela linha de comando
+# Variavel do parametro     # Como esta escrito nos slides
+
+initial_solution = set()    # s     : criar com algum algoritmo (guloso, etc.)
+initial_temperature = 0.9   # Ti    : ideia proposta nos slides, mas tem que pensar se faz sentido e como implementar
+final_temperature = 0.1     # Tf    : criterio de parada, mas pode usar outro tambem
+iterations = 10             # I     : proporcional ao tamanho da vizinhanca
+cooling_rate = 0.8          # r     : idealmente entre [0.8, 0.99]
+
+
 def boltzmann(x: float, temperature: float) -> float:
     exponent = - x / temperature
     return e ** exponent
