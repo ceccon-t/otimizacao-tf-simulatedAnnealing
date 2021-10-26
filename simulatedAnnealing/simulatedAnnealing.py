@@ -11,6 +11,13 @@ def vtoi(v: int) -> int:
     return v - 1
 
 
+def itov(i: int) -> int:
+    """
+        Converte de numero do indice na matriz de adjacencia (0-indexed) para o numero do vertice (1-indexed)
+    """
+    return i + 1
+
+
 def parse_int_pair(s: str) -> 'tuple[int]':
     """
         Dada uma string no formato "A B", com A e B numeros inteiros retorna tupla com inteiros A e B nessa ordem
@@ -21,12 +28,12 @@ def parse_int_pair(s: str) -> 'tuple[int]':
     return (a, b)
 
 
-def adiciona_aresta(M, u, v):
+def add_edge(M, u, v):
     M[u][v] = 1
     M[v][u] = 1
 
 
-def remove_aresta(M, u, v):
+def remove_edge(M, u, v):
     M[u][v] = 0
     M[v][u] = 0
     
@@ -70,28 +77,34 @@ filename = small_instance
 filepath = os.path.join('..', 'dados', 'instancias', filename)
 
 # Cria matriz de adjacencia
-A = [[]]
-V = 0
-E = 0
+# Variavel              # Como esta escrito nos slides
+original_graph = [[]]   # A
+total_vertices = 0      # V
+total_edges = 0         # E
 
 # Preenche matriz com dados da instancia
 with open(filepath, 'r') as instancia:
     header = instancia.readline()
-    V, E = parse_int_pair(header)
+    total_vertices, total_edges = parse_int_pair(header)
 
-    A = [[0 for j in range(V)] for i in range(V)]
+    original_graph = [[0 for j in range(total_vertices)] for i in range(total_vertices)]
     
-    for aresta in range(E):
+    for aresta in range(total_edges):
         v1, v2 = parse_int_pair(instancia.readline())
         i = vtoi(v1)
         j = vtoi(v2)
-        adiciona_aresta(A, i, j)
+        add_edge(original_graph, i, j)
+
+    for i in range(total_vertices):
+        print(f'Vertex {itov(i)}')
+
+    
 
 
 print('Matriz com dados originais da instancia:')
-print(A)
+print(original_graph)
 
-print(f'Total de vertices na instancia: {V}')
-print(f'Total de arestas na instance: {E}')
+print(f'Total de vertices na instancia: {total_vertices}')
+print(f'Total de arestas na instance: {total_edges}')
 
 print('Cest fini.')
