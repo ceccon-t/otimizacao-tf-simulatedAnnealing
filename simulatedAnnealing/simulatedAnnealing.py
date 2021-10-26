@@ -1,4 +1,7 @@
 import os
+import math 
+
+e = math.e
 
 
 def vtoi(v: int) -> int:
@@ -27,6 +30,22 @@ def remove_aresta(M, u, v):
     M[u][v] = 0
     M[v][u] = 0
     
+
+# TODO: funcao para criar solucao inicial
+
+# TODO: funcao para gerar vizinhanca
+
+# TODO: funcao para avaliar funcao objetivo
+
+# TODO: (talvez) funcao para calcular grau de um vertice no grafo original
+
+# TODO: funcao para calcular grau de um vertice em uma solucao especifica
+
+
+def boltzmann(x: float, temperature: float) -> float:
+    exponent = - x / temperature
+    return e ** exponent
+
 
 # Algumas instancias de escala variada para facilitar testes
 small_instance = 'induced_7_10.dat'
