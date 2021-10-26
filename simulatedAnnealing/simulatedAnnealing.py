@@ -110,7 +110,7 @@ original_graph = [[]]   # A
 total_vertices = 0      # V
 total_edges = 0         # E
 
-# Preenche matriz com dados da instancia
+# Fill matrix with instance data
 with open(filepath, 'r') as instancia:
     header = instancia.readline()
     total_vertices, total_edges = parse_int_pair(header)
@@ -124,21 +124,35 @@ with open(filepath, 'r') as instancia:
         add_edge(original_graph, i, j)
 
     # Some prints to test initialization of matrix and helper functions
-    all_vertices = set([i for i in range(total_vertices)])
+    # all_vertices = set([i for i in range(total_vertices)])
     # print(all_vertices)
-    simple_solution_for_small = set([1,4,5])
+    # simple_solution_for_small = set([1,4,5])
     # for i in range(total_vertices):
     #     print(f'Vertice {itov(i)} tem grau {degree_on_original(itov(i))} no grafo original')
     #     print(f'Vertice {itov(i)} tem grau {degree_on_solution(itov(i), all_vertices)} em pseudo-solucao usando todos os vertices')
     #     print(f'Vertice {itov(i)} tem grau {degree_on_solution(itov(i), simple_solution_for_small)} em solucao com [1,4,5]')
-    print(f'Is {all_vertices} valid as a solution? : {is_valid_solution_full(all_vertices)}')
-    print(f'Is {simple_solution_for_small} valid as a solution? : {is_valid_solution_full(simple_solution_for_small)}')
+    # print(f'Is {all_vertices} valid as a solution? : {is_valid_solution_full(all_vertices)}')
+    # print(f'Is {simple_solution_for_small} valid as a solution? : {is_valid_solution_full(simple_solution_for_small)}')
 
-    
+
+# Generate initial solution
+# Add-1
+for i in range(total_vertices):
+    v = itov(i)
+    tentative_solution = set(initial_solution)
+    tentative_solution.add(v)
+    if is_valid_solution_full(tentative_solution):
+        initial_solution = set(tentative_solution)
+
+
+# TODO: Logica do algoritmo
 
 
 print('Matrix with original instance data:')
 print(original_graph)
+
+print(f'Initial solution: {initial_solution}')
+print(f'Size of initial solution: {len(initial_solution)}')
 
 print(f'Total number of verticies on instance: {total_vertices}')
 print(f'Total number of edges on instance: {total_edges}')
