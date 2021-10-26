@@ -36,18 +36,16 @@ def remove_edge(M, u, v):
     M[v][u] = 0
     
 
-# TODO: funcao para criar solucao inicial
+# TODO: function to generate neighborhood
 
-# TODO: funcao para gerar vizinhanca
-
-# TODO: funcao para avaliar funcao objetivo
+# TODO: function to evaluate goal function on solution
 
 
 def degree_on_original(v: int) -> int:
     """
         Calculate degree of vertex 'v' on original graph, probably more useful when generating original solution
     """
-    global original_graph  # Vou pensar em algo melhor do que isso depois
+    global original_graph  # Maybe we can have this as a parameter, but need to check if that wouldnt add too much overhead
     i = vtoi(v)
     return sum(original_graph[i])
 
@@ -56,7 +54,7 @@ def degree_on_solution(v: int, s: 'set[int]') -> int:
     """
         Calculate degree of vertex 'v' on solution 's'
     """
-    global original_graph  # Vou pensar em algo melhor do que isso depois
+    global original_graph  # Maybe we can have this as a parameter, but need to check if that wouldnt add too much overhead
     i = vtoi(v)
     degree = 0
     for u in s:
@@ -76,36 +74,39 @@ def is_valid_solution_full(s: 'set[int]') -> bool:
     return True 
 
 
-# Parametros
-# TODO: (talvez) permitir que sejam passados pela linha de comando
-# Variavel do parametro     # Como esta escrito nos slides
+# Parameters
+# TODO: (maybe) allow these to be passed from  command line
+# Parameter variable        # How it is written on slides
 
-initial_solution = set()    # s     : criar com algum algoritmo (guloso, etc.)
-initial_temperature = 0.9   # Ti    : ideia proposta nos slides, mas tem que pensar se faz sentido e como implementar
-final_temperature = 0.1     # Tf    : criterio de parada, mas pode usar outro tambem
-iterations = 10             # I     : proporcional ao tamanho da vizinhanca
-cooling_rate = 0.8          # r     : idealmente entre [0.8, 0.99]
+initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
+initial_temperature = 0.9   # Ti    : check if we should use idea proposed on slides or something else
+final_temperature = 0.1     # Tf    : end criteria, but we can use another one as well
+iterations = 10             # I     : ideally proportional to size of neighborhood
+cooling_rate = 0.8          # r     : ideally in range [0.8, 0.99]
 
 
 def boltzmann(x: float, temperature: float) -> float:
+    """
+        Probability of picking a solution with value 'x' that is worse than current best one
+    """
     e = math.e
     exponent = - x / temperature
     return e ** exponent
 
 
-# Algumas instancias de escala variada para facilitar testes
+# Some instances of varying scale to facilitate tests
 small_instance = 'induced_7_10.dat'
 medium_instance = 'induced_200_5970.dat'
 large_instance = 'induced_700_122325.dat'
 
-# TODO: aceitar parametro passado na linha de comando com nome da instancia desejada
+# TODO: accept this parameter from command line with name of desired instance file
 filename = medium_instance
 
-# Caminho completo ate arquivo da instancia utilizada
+# Full path to file of instance being used
 filepath = os.path.join('..', 'dados', 'instancias', filename)
 
-# Cria matriz de adjacencia
-# Variavel              # Como esta escrito nos slides
+# Create adjacency matrix
+# Variable              # How it is written on slides
 original_graph = [[]]   # A
 total_vertices = 0      # V
 total_edges = 0         # E
