@@ -106,6 +106,10 @@ def boltzmann(x: float, temperature: float) -> float:
     return e ** exponent
 
 
+def build_initial_solution():
+    return set()
+
+
 def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
     # Chooses a random vertex and 'flips' it, that is
     #   if is in solution, remove it
@@ -133,14 +137,18 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
     current = set(s)
     current_value = even_degree_total(current)
     for _ in range(runs):
-        neighbor = set(s) # Choose neighbor
+        neighbor = choose_neighbor(current) # Choose neighbor
         
         neighbor_value = even_degree_total(neighbor)
+        # print(f'Neighbor: {neighbor}, Value: {neighbor_value}')
 
         delta = neighbor_value - current_value
         if delta >= 0:  # our case is a maximization problem
             current = neighbor
             current_value = neighbor_value
+            if current_value > best_value and is_valid_solution_full(current):
+                best_found = current
+                best_value = current_value
         else:
             random_value = random.random() 
             probability = boltzmann(-delta, temperature)
@@ -164,7 +172,9 @@ def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) ->
         for _ in range(I):
             current_solution = metropolis(current_solution, temperature, 1000)
             current_value = even_degree_total(current_solution)
+            print(f'Cur value: {current_value}, best value: {best_value} ')
             if current_value > best_value:
+                print(f'Found better')
                 best_solution = current_solution
                 best_value = current_value
 
@@ -251,6 +261,7 @@ if use_add_2:
 
 
 # SIMULATED ANNEALING
+initial_solution = build_initial_solution()
 temperature = initial_temperature
 solution = initial_solution
 best_solution = initial_solution
@@ -275,6 +286,7 @@ print(f'Size of initial solution: {len(initial_solution)}')
 # Info about best found solution
 # print(f'Went through {temperatures_run} different temperatures')
 print(f'Best solution found: {best_solution}')
-print(f'Size of best solution found: {len(best_solution)}')
+print(f'Value of best solution: {even_degree_total(best_solution)}') 
+print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
 
 print('Cest fini.')
