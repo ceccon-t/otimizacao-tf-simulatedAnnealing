@@ -106,6 +106,32 @@ def boltzmann(x: float, temperature: float) -> float:
     return e ** exponent
 
 
+def metropolis(s: 'set[int]', temperature: float) -> 'set[int]':
+    pass 
+
+
+def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -> 'set[int]':
+    best_solution = s 
+    current_solution = s
+    best_value = even_degree_total(best_solution)
+    temperature = Ti
+    final_temperature = Tf
+    cooling_rate = r
+
+    while temperature >= final_temperature:
+        # Some iterations with constant T
+        for _ in range(I):
+            current_solution = metropolis(current_solution, temperature)
+            current_value = even_degree_total(current_solution)
+            if current_value > best_value:
+                best_solution = current_solution
+                best_value = current_value
+
+        temperature = cooling_rate * temperature
+
+    return best_solution
+
+
 # Create adjacency matrix
 # Variable              # How it is written on slides
 original_graph = [[]]   # A
