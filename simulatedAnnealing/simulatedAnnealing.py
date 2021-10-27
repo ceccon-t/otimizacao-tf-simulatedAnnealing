@@ -172,9 +172,9 @@ def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) ->
         for _ in range(I):
             current_solution = metropolis(current_solution, temperature, 1000)
             current_value = even_degree_total(current_solution)
-            print(f'Cur value: {current_value}, best value: {best_value} ')
+            # print(f'Cur value: {current_value}, best value: {best_value} ')
             if current_value > best_value:
-                print(f'Found better')
+                # print(f'Found better')
                 best_solution = current_solution
                 best_value = current_value
 
@@ -225,7 +225,7 @@ initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
 initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
 final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
 iterations = 10             # I     : ideally proportional to size of neighborhood
-cooling_rate = 0.8          # r     : ideally in range [0.8, 0.99]
+cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
 metropolis_runs = 100       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
 
 
@@ -261,7 +261,7 @@ if use_add_2:
 
 
 # SIMULATED ANNEALING
-initial_solution = build_initial_solution()
+# initial_solution = build_initial_solution()
 temperature = initial_temperature
 solution = initial_solution
 best_solution = initial_solution
