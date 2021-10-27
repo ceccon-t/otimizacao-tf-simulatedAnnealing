@@ -106,8 +106,48 @@ def boltzmann(x: float, temperature: float) -> float:
     return e ** exponent
 
 
-def metropolis(s: 'set[int]', temperature: float) -> 'set[int]':
-    pass 
+def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
+    # Chooses a random vertex and 'flips' it, that is
+    #   if is in solution, remove it
+    #   if is not in solution, adds it
+    global all_vertices
+    flipped = random.choice(list(all_vertices))
+    neighbor = set(s)
+    if flipped in neighbor:
+        neighbor.remove(flipped)
+    else:
+        neighbor.add(flipped)
+    return neighbor
+
+
+def choose_neighbor(s: 'set[int]') -> 'set[int]':
+    # Perhaps the best idea would be to have this as a generator...
+    # Calls another function to facilitate testing different neighborhood
+    #   strategies: we just need to create a new function and change what is called here
+    return neighborhood_1flip(s) 
+
+
+def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
+    best_found = set(s)
+    best_value = even_degree_total(best_found)
+    current = set(s)
+    current_value = even_degree_total(current)
+    for _ in range(runs):
+        neighbor = set(s) # Choose neighbor
+        
+        neighbor_value = even_degree_total(neighbor)
+
+        delta = neighbor_value - current_value
+        if delta >= 0:  # our case is a maximization problem
+            current = neighbor
+            current_value = neighbor_value
+        else:
+            random_value = random.random() 
+            probability = boltzmann(-delta, temperature)
+            if random_value < probability:
+                current = neighbor
+                current_value = neighbor_value
+    return best_found 
 
 
 def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -> 'set[int]':
@@ -119,9 +159,10 @@ def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) ->
     cooling_rate = r
 
     while temperature >= final_temperature:
+        print(f'Running iterations for temperature {temperature}')
         # Some iterations with constant T
         for _ in range(I):
-            current_solution = metropolis(current_solution, temperature)
+            current_solution = metropolis(current_solution, temperature, 1000)
             current_value = even_degree_total(current_solution)
             if current_value > best_value:
                 best_solution = current_solution
@@ -215,95 +256,16 @@ solution = initial_solution
 best_solution = initial_solution
 best_value = even_degree_total(best_solution)
 
-temperatures_run = 0
+# temperatures_run = 0
 
-# Main loop
-while temperature > final_temperature:
-    print('')
-    print(f'Starting iterations with temperature {temperature}')
-    temperatures_run += 1
-    
-    # Some iterations with constant temperature
-    for _ in range(iterations):
-        print(f'Iteration {_}')
-        found_valid = 0
-        found_invalid = 0
-
-        # Run METROPOLIS algorithm
-        # NOTE: maybe this should be done in its own helper function, however
-        #       since we will want to keep track of the best solution it has found,
-        #       I am doing it right here for now, later we can refactor to use globals, etc.
-        for __ in range(metropolis_runs):
-            current_solution = set(best_solution)
-            current_value = even_degree_total(current_solution)
-            
-            # Select neighbor logic
-            # For a first try, lets choose a neighbor by adding or removing one vertex from solution
-            #   P.S.: this is not working well at all, unfortunately, algorithm gets stuck on initial solution
-            randomized_vertices = list(all_vertices)
-            random.shuffle(randomized_vertices)  # randomize so we don't always favor the first few vertices
-
-            invalids = []
-            chose_valid = False
-            
-            for v in randomized_vertices:
-                neighbor = set(current_solution)
-                if v in neighbor:
-                    neighbor.remove(v)
-                    #continue
-                else:
-                    neighbor.add(v)
-
-                if is_valid_solution_full(neighbor):        # Idea: perhaps this is too restrictive, try relaxing it
-                    found_valid += 1
-                    value_neighbor = even_degree_total(neighbor)
-                    delta = value_neighbor - current_value
-                    if delta >= 0:  # neighbor has higher or equal value than current solution
-                        #print(f'Found a better or equal neighbor!')
-                        current_solution = neighbor
-                        current_value = value_neighbor
-                        if value_neighbor > best_value: # neighbor is best solution seen so far
-                            #print(f'Found a neighbor better than best solution!')
-                            best_solution = set(neighbor)
-                            best_value = value_neighbor
-                            chose_valid = True
-                        break
-                    else:    
-                        # pick neighbor with prob given by boltzmann function
-                        random_value = random.random()
-                        boltzmann_value = boltzmann(-delta, temperature)
-                        if random_value < boltzmann_value:
-                            #print(f'Picking a worse neighbor, probability was {boltzmann_value}, random value was {random_value}')
-                            current_solution = neighbor
-                            current_value = value_neighbor
-                            chose_valid = True
-                            break 
-                else:
-                    found_invalid += 1
-                    invalids.append(neighbor)
-            
-            if not chose_valid:
-                #print(f'Could not find a valid neighbor to move to, so picking an invalid one...')
-                random.shuffle(invalids)
-                current_solution = invalids[0]
-                current_value = even_degree_total(current_solution)
-        # End METROPOLIS algorithm
-
-        # After Metropolis algorithm:
-        # check if returned solution is better than the best so far and update if yes
-        #   for now, I'm not doing it because I am running Metropolis inside main loop
-        print(f'For this iteration, found {found_valid} valid neighbors and {found_invalid} invalid neighbors')
-        
-    # Reduce temperature a little for next run
-    temperature = cooling_rate * temperature
-
+best_solution = simulatedAnnealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate)
 
 # Show some info about instance
 # print('Matrix with original instance data:')
 # print(original_graph)
 
-print(f'Total number of vertices on instance: {total_vertices}')
-print(f'Total number of edges on instance: {total_edges}')
+# print(f'Total number of vertices on instance: {total_vertices}')
+# print(f'Total number of edges on instance: {total_edges}')
 
 
 # Info about initial solution
@@ -311,7 +273,7 @@ print(f'Initial solution: {initial_solution}')
 print(f'Size of initial solution: {len(initial_solution)}')
 
 # Info about best found solution
-print(f'Went through {temperatures_run} different temperatures')
+# print(f'Went through {temperatures_run} different temperatures')
 print(f'Best solution found: {best_solution}')
 print(f'Size of best solution found: {len(best_solution)}')
 
