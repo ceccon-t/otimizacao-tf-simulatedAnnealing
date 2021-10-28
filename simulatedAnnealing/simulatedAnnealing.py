@@ -87,6 +87,30 @@ def even_degree_total(s: 'set[int]') -> int:
     return total
 
 
+def build_original_graph(filename: str) -> 'list[list[int]]':
+    """
+        Builds and return the graph that is described on file 'filename' inside instances folder
+    """
+    # Full path to file containing instance
+    filepath = os.path.join('..', 'dados', 'instancias', filename)
+
+    original_graph = [[]]
+
+    with open(filepath, 'r') as instance:
+        header = instance.readline()
+        total_vertices, total_edges = parse_int_pair(header)
+
+        original_graph = [[0 for j in range(total_vertices)] for i in range(total_vertices)]
+        
+        for _ in range(total_edges):
+            v1, v2 = parse_int_pair(instance.readline())
+            i = vtoi(v1)
+            j = vtoi(v2)
+            add_edge(original_graph, i, j)
+    
+    return original_graph 
+
+
 ######################################################
 ####  ALGORITHM FUNCTIONS  ###########################
 ######################################################
@@ -180,7 +204,7 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
     return best_found 
 
 
-def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -> 'set[int]':
+def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, metropolis_runs: int) -> 'set[int]':
     best_solution = s 
     current_solution = s
     best_value = even_degree_total(best_solution)
@@ -193,7 +217,7 @@ def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -
         print(f'Current best solution has value: {best_value}')
         # Some iterations with constant T
         for _ in range(I):
-            current_solution = metropolis(current_solution, temperature, 1000)
+            current_solution = metropolis(current_solution, temperature, metropolis_runs)
             current_value = even_degree_total(current_solution)
             # print(f'Cur value: {current_value}, best value: {best_value} ')
             if current_value > best_value:
@@ -210,37 +234,37 @@ def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -
 ####  SETUP AND RUN  #################################
 ######################################################
 
-# Some instances of varying scale to facilitate tests
-small_instance = 'induced_7_10.dat'
-medium_instance = 'induced_200_5970.dat'
-large_instance = 'induced_700_122325.dat'
+_ALL_INSTANCES_FILENAMES = [
+    'induced_7_10.dat',         # 0
+    'induced_10_22.dat',        # 1
+    'induced_50_122.dat',       # 2
+    'induced_50_368.dat',       # 3
+    'induced_50_612.dat',       # 4
+    'induced_100_495.dat',      # 5
+    'induced_100_1485.dat',     # 6
+    'induced_100_2475.dat',     # 7
+    'induced_200_1990.dat',     # 8
+    'induced_200_5970.dat',     # 9
+    'induced_200_9950.dat',     # 10
+    'induced_500_12475.dat',    # 11
+    'induced_500_37425.dat',    # 12
+    'induced_500_62375.dat',    # 13
+    'induced_700_24465.dat',    # 14
+    'induced_700_73395.dat',    # 15
+    'induced_700_122325.dat'    # 16
+]
 
-# TODO: accept this parameter from command line with name of desired instance file
+# Some instances of varying scale to facilitate tests
+small_instance = _ALL_INSTANCES_FILENAMES[0] # 'induced_7_10.dat'
+medium_instance = _ALL_INSTANCES_FILENAMES[9] # 'induced_200_5970.dat'
+large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
+
+# TODO: (maybe) accept this parameter from command line with name of desired instance file
 filename = medium_instance
 
-# Full path to file of instance being used
-filepath = os.path.join('..', 'dados', 'instancias', filename)
-
-# Create adjacency matrix
-# Variable              # How it is written on slides
-original_graph = [[]]   # A
-total_vertices = 0      # V
-total_edges = 0         # E
-
-# Fill matrix with instance data
-with open(filepath, 'r') as instancia:
-    header = instancia.readline()
-    total_vertices, total_edges = parse_int_pair(header)
-
-    original_graph = [[0 for j in range(total_vertices)] for i in range(total_vertices)]
-    
-    for aresta in range(total_edges):
-        v1, v2 = parse_int_pair(instancia.readline())
-        i = vtoi(v1)
-        j = vtoi(v2)
-        add_edge(original_graph, i, j)
-
-
+# Create adjacency matrix and related data
+original_graph = build_original_graph(filename)
+total_vertices = len(original_graph[0])
 all_vertices = set(range(total_vertices))
 
 
@@ -251,14 +275,14 @@ initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
 initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
 final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
 iterations = 10             # I     : ideally proportional to size of neighborhood
-cooling_rate = 0.99         # r     : ideally in range [0.8, 0.99]
-metropolis_runs = 100       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
+cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
+metropolis_runs = 1000       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
 
 
 # RUN SIMULATED ANNEALING
 initial_solution = build_initial_solution(all_vertices)
 
-best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate)
+best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 
 # Info about initial solution
 print(f'Initial solution: {initial_solution}')
