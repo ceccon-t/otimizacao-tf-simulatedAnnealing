@@ -1,6 +1,8 @@
 import os
 import math 
 import random
+import time
+from datetime import datetime
 
 
 ######################################################
@@ -94,6 +96,7 @@ def log_results(filename: str, results: dict, temp: bool) -> None:
     content = ''
     if 'instance' in results:
         content = content + 'Instance: ' + str(results['instance']) + '\n'
+    
     content = content + '\nParameters: ' + '\n'
     if 'initial_temperature' in results:
         content = content + 'Initial temperature: ' + str(results['initial_temperature']) + '\n'
@@ -105,6 +108,10 @@ def log_results(filename: str, results: dict, temp: bool) -> None:
         content = content + 'Cooling rate: ' + str(results['cooling_rate']) + '\n'
     if 'metropolis_runs' in results:
         content = content + 'Metropolis runs: ' + str(results['metropolis_runs']) + '\n'
+    
+    content = content + '\nResults: ' + '\n'
+    if 'total_time' in results:
+        content = content + 'Time to run: ' + str(results['total_time']) + ' (seconds)' + '\n'
     if 'initial_solution' in results:
         content = content + 'Initial solution: ' + str(results['initial_solution']) + '\n'
         content = content + 'Size of initial solution: ' + str(len(results['initial_solution'])) + '\n'
@@ -314,9 +321,12 @@ metropolis_runs = 1000       # how many times should the Metropolis algorithm ru
 
 
 # RUN SIMULATED ANNEALING
+initial_time = time.time()
 initial_solution = build_initial_solution(all_vertices)
 
 best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
+final_time = time.time()
+total_time = final_time - initial_time
 
 # Info about initial solution
 print(f'Initial solution: {initial_solution}')
@@ -327,11 +337,15 @@ print(f'Best solution found: {best_solution}')
 print(f'Value of best solution: {even_degree_total(best_solution)}') 
 print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
 
+# Execution time
+print(f'Total time to run this instance: {total_time} (seconds)')
+
 should_log = False 
 
 if should_log:
     infos = dict()
     infos['instance'] = filename
+    infos['total_time'] = total_time
     infos['initial_solution'] = initial_solution
     infos['initial_temperature'] = initial_temperature
     infos['final_temperature'] = final_temperature
@@ -342,7 +356,6 @@ if should_log:
 
     log_to_temp = True
 
-    from datetime import datetime
     log_file = filename.replace('.dat', '')
 
 
