@@ -87,6 +87,43 @@ def even_degree_total(s: 'set[int]') -> int:
     return total
 
 
+def log_results(filename: str, infos: dict, temp: bool) -> None:
+    full_filename = filename + '_-_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
+    folder_name = 'tmp' if temp else 'log'
+
+    content = ''
+    if 'instance' in infos:
+        content = content + 'Instance: ' + str(infos['instance']) + '\n'
+    content = content + '\nParameters: ' + '\n'
+    if 'initial_temperature' in infos:
+        content = content + 'Initial temperature: ' + str(infos['initial_temperature']) + '\n'
+    if 'final_temperature' in infos:
+        content = content + 'Final temperature: ' + str(infos['final_temperature']) + '\n'
+    if 'iterations' in infos:
+        content = content + 'Iterations: ' + str(infos['iterations']) + '\n'
+    if 'cooling_rate' in infos:
+        content = content + 'Cooling rate: ' + str(infos['cooling_rate']) + '\n'
+    if 'metropolis_runs' in infos:
+        content = content + 'Metropolis runs: ' + str(infos['metropolis_runs']) + '\n'
+    if 'initial_solution' in infos:
+        content = content + 'Initial solution: ' + str(infos['initial_solution']) + '\n'
+        content = content + 'Size of initial solution: ' + str(len(infos['initial_solution'])) + '\n'
+    if 'best_solution' in infos:
+        content = content + 'Best solution found: ' + str(infos['best_solution']) + '\n'
+        content = content + 'Size of best solution found: ' + str(len(infos['best_solution'])) + '\n'
+
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    filepath = os.path.join(folder_name, full_filename)
+    with open(filepath, 'w') as logfile:
+        logfile.write(content)
+
+
+######################################################
+####  HELPER ALGORITHMS  #############################
+######################################################
+
 def build_original_graph(filename: str) -> 'list[list[int]]':
     """
         Builds and return the graph that is described on file 'filename' inside instances folder
@@ -161,7 +198,8 @@ def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
     #   if is in solution, remove it
     #   if is not in solution, adds it
     global all_vertices
-    flipped = random.choice(list(all_vertices))
+    chosen = random.choice(list(all_vertices))
+    flipped = itov(chosen)
     neighbor = set(s)
     if flipped in neighbor:
         neighbor.remove(flipped)
@@ -262,35 +300,115 @@ large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
 # TODO: (maybe) accept this parameter from command line with name of desired instance file
 filename = medium_instance
 
-# Create adjacency matrix and related data
-original_graph = build_original_graph(filename)
-total_vertices = len(original_graph[0])
-all_vertices = set(range(total_vertices))
+# # Create adjacency matrix and related data
+# original_graph = build_original_graph(filename)
+# total_vertices = len(original_graph[0])
+# all_vertices = set(range(total_vertices))
 
 
-# Parameters
-# TODO: (maybe) allow these to be passed from  command line
-# Parameter variable        # How it is written on slides
-initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
-initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
-final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
-iterations = 10             # I     : ideally proportional to size of neighborhood
-cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
-metropolis_runs = 1000       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
+# # Parameters
+# # TODO: (maybe) allow these to be passed from  command line
+# # Parameter variable        # How it is written on slides
+# initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
+# initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
+# final_temperature = 0.9     # Tf    : end criteria, but we can use another one as well
+# iterations = 10             # I     : ideally proportional to size of neighborhood
+# cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
+# metropolis_runs = 1000       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
 
 
-# RUN SIMULATED ANNEALING
-initial_solution = build_initial_solution(all_vertices)
+# # RUN SIMULATED ANNEALING
+# initial_solution = build_initial_solution(all_vertices)
 
-best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
+# best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 
-# Info about initial solution
-print(f'Initial solution: {initial_solution}')
-print(f'Size of initial solution: {len(initial_solution)}')
+# # Info about initial solution
+# print(f'Initial solution: {initial_solution}')
+# print(f'Size of initial solution: {len(initial_solution)}')
 
-# Info about best found solution
-print(f'Best solution found: {best_solution}')
-print(f'Value of best solution: {even_degree_total(best_solution)}') 
-print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
+# # Info about best found solution
+# print(f'Best solution found: {best_solution}')
+# print(f'Value of best solution: {even_degree_total(best_solution)}') 
+# print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
+
+# print('Cest fini.')
+
+# infos = dict()
+# infos['instance'] = filename
+# infos['initial_solution'] = initial_solution
+# infos['initial_temperature'] = initial_temperature
+# infos['final_temperature'] = final_temperature
+# infos['iterations'] = iterations
+# infos['cooling_rate'] = cooling_rate
+# infos['metropolis_runs'] = metropolis_runs
+# infos['best_solution'] = best_solution 
+
+# log_to_temp = True
+
+# from datetime import datetime
+# log_file = filename.replace('.dat', '')
+
+
+# log_results(log_file, infos, log_to_temp)    
+
+
+########################################
+instances_to_log = _ALL_INSTANCES_FILENAMES
+
+for instance in instances_to_log:
+    filename = instance
+
+    print(f'Generating results for instance {instance}')
+
+    # Create adjacency matrix and related data
+    original_graph = build_original_graph(filename)
+    total_vertices = len(original_graph[0])
+    all_vertices = set(range(total_vertices))
+
+
+    # Parameters
+    # TODO: (maybe) allow these to be passed from  command line
+    # Parameter variable        # How it is written on slides
+    initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
+    initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
+    final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
+    iterations = total_vertices             # I     : ideally proportional to size of neighborhood
+    cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
+    metropolis_runs = 1000       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
+
+
+    # RUN SIMULATED ANNEALING
+    initial_solution = build_initial_solution(all_vertices)
+
+    best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
+
+    # # Info about initial solution
+    # print(f'Initial solution: {initial_solution}')
+    # print(f'Size of initial solution: {len(initial_solution)}')
+
+    # # Info about best found solution
+    # print(f'Best solution found: {best_solution}')
+    # print(f'Value of best solution: {even_degree_total(best_solution)}') 
+    # print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
+
+    infos = dict()
+    infos['instance'] = filename
+    infos['initial_solution'] = initial_solution
+    infos['initial_temperature'] = initial_temperature
+    infos['final_temperature'] = final_temperature
+    infos['iterations'] = iterations
+    infos['cooling_rate'] = cooling_rate
+    infos['metropolis_runs'] = metropolis_runs
+    infos['best_solution'] = best_solution 
+
+    log_to_temp = True
+
+    from datetime import datetime
+    log_file = filename.replace('.dat', '')
+
+
+    log_results(log_file, infos, log_to_temp)    
+
+    print(f'\n\n\n')
 
 print('Cest fini.')
