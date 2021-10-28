@@ -3,17 +3,9 @@ import math
 import random
 
 
-# Some instances of varying scale to facilitate tests
-small_instance = 'induced_7_10.dat'
-medium_instance = 'induced_200_5970.dat'
-large_instance = 'induced_700_122325.dat'
-
-# TODO: accept this parameter from command line with name of desired instance file
-filename = medium_instance
-
-# Full path to file of instance being used
-filepath = os.path.join('..', 'dados', 'instancias', filename)
-
+######################################################
+####  HELPER FUNCTIONS ###############################
+######################################################
 
 
 def vtoi(v: int) -> int:
@@ -49,8 +41,6 @@ def remove_edge(M, u, v):
     M[u][v] = 0
     M[v][u] = 0
     
-
-# TODO: function to generate neighborhood
 
 def degree_on_original(v: int) -> int:
     """
@@ -97,17 +87,49 @@ def even_degree_total(s: 'set[int]') -> int:
     return total
 
 
+######################################################
+####  ALGORITHM FUNCTIONS  ###########################
+######################################################
+
 def boltzmann(x: float, temperature: float) -> float:
     """
-        Probability of picking a solution with value 'x' that is worse than current best one
+        Probability of picking a solution with delta 'x' that is worse than current best one
     """
     e = math.e
     exponent = - x / temperature
     return e ** exponent
 
 
-def build_initial_solution():
-    return set()
+def build_initial_solution(all_vertices: 'set[int]') -> 'set[int]':
+    initial_solution = set()
+    total_vertices = len(all_vertices)
+    # Add-1
+    print('Starting Add-1: Trying to add single vertices on initial solution')
+    for i in range(total_vertices):
+        v = itov(i)
+        tentative_solution = set(initial_solution)
+        tentative_solution.add(v)
+        if is_valid_solution_full(tentative_solution):
+            initial_solution = set(tentative_solution)
+    print(f'Finished Add-1, size of initial solution: {len(initial_solution)}')
+
+    # Add-2
+    use_add_2 = True    # Doesnt make any difference for small solution, makes small difference for medium and large solutions
+    if use_add_2:
+        print('Starting Add-2: Trying to add pairs of vertices on initial solution')
+        # print(f'All vertices: {all_vertices}')
+        excluded_vertices = all_vertices.difference(initial_solution)
+        for j in excluded_vertices:
+            for i in excluded_vertices.difference(set([j])):
+                v = itov(i)
+                u = itov(j)
+                tentative_solution = set(initial_solution)
+                tentative_solution.add(v)
+                tentative_solution.add(u)
+                if is_valid_solution_full(tentative_solution):
+                    initial_solution = set(tentative_solution)
+        print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
+    return initial_solution
 
 
 def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
@@ -158,7 +180,7 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
     return best_found 
 
 
-def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -> 'set[int]':
+def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) -> 'set[int]':
     best_solution = s 
     current_solution = s
     best_value = even_degree_total(best_solution)
@@ -168,6 +190,7 @@ def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) ->
 
     while temperature >= final_temperature:
         print(f'Running iterations for temperature {temperature}')
+        print(f'Current best solution has value: {best_value}')
         # Some iterations with constant T
         for _ in range(I):
             current_solution = metropolis(current_solution, temperature, 1000)
@@ -182,6 +205,21 @@ def simulatedAnnealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float) ->
 
     return best_solution
 
+
+######################################################
+####  SETUP AND RUN  #################################
+######################################################
+
+# Some instances of varying scale to facilitate tests
+small_instance = 'induced_7_10.dat'
+medium_instance = 'induced_200_5970.dat'
+large_instance = 'induced_700_122325.dat'
+
+# TODO: accept this parameter from command line with name of desired instance file
+filename = medium_instance
+
+# Full path to file of instance being used
+filepath = os.path.join('..', 'dados', 'instancias', filename)
 
 # Create adjacency matrix
 # Variable              # How it is written on slides
@@ -202,17 +240,6 @@ with open(filepath, 'r') as instancia:
         j = vtoi(v2)
         add_edge(original_graph, i, j)
 
-    # Some prints to test initialization of matrix and helper functions
-    # all_vertices = set([i for i in range(total_vertices)])
-    # print(all_vertices)
-    # simple_solution_for_small = set([1,4,5])
-    # for i in range(total_vertices):
-    #     print(f'Vertice {itov(i)} tem grau {degree_on_original(itov(i))} no grafo original')
-    #     print(f'Vertice {itov(i)} tem grau {degree_on_solution(itov(i), all_vertices)} em pseudo-solucao usando todos os vertices')
-    #     print(f'Vertice {itov(i)} tem grau {degree_on_solution(itov(i), simple_solution_for_small)} em solucao com [1,4,5]')
-    # print(f'Is {all_vertices} valid as a solution? : {is_valid_solution_full(all_vertices)}')
-    # print(f'Is {simple_solution_for_small} valid as a solution? : {is_valid_solution_full(simple_solution_for_small)}')
-
 
 all_vertices = set(range(total_vertices))
 
@@ -220,71 +247,24 @@ all_vertices = set(range(total_vertices))
 # Parameters
 # TODO: (maybe) allow these to be passed from  command line
 # Parameter variable        # How it is written on slides
-
 initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
 initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
 final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
 iterations = 10             # I     : ideally proportional to size of neighborhood
-cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
+cooling_rate = 0.99         # r     : ideally in range [0.8, 0.99]
 metropolis_runs = 100       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
 
 
-# Generate initial solution
+# RUN SIMULATED ANNEALING
+initial_solution = build_initial_solution(all_vertices)
 
-# Add-1
-print('Starting Add-1: Trying to add single vertices on initial solution')
-for i in range(total_vertices):
-    v = itov(i)
-    tentative_solution = set(initial_solution)
-    tentative_solution.add(v)
-    if is_valid_solution_full(tentative_solution):
-        initial_solution = set(tentative_solution)
-print(f'Finished Add-1, size of initial solution: {len(initial_solution)}')
-
-# Add-2
-use_add_2 = True    # Doesnt make any difference for small solution, makes small difference for medium and large solutions
-if use_add_2:
-    print('Starting Add-2: Trying to add pairs of vertices on initial solution')
-    # print(f'All vertices: {all_vertices}')
-    excluded_vertices = all_vertices.difference(initial_solution)
-    for j in excluded_vertices:
-        for i in excluded_vertices.difference(set([j])):
-            v = itov(i)
-            u = itov(j)
-            tentative_solution = set(initial_solution)
-            tentative_solution.add(v)
-            tentative_solution.add(u)
-            if is_valid_solution_full(tentative_solution):
-                initial_solution = set(tentative_solution)
-    print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
-
-
-
-# SIMULATED ANNEALING
-# initial_solution = build_initial_solution()
-temperature = initial_temperature
-solution = initial_solution
-best_solution = initial_solution
-best_value = even_degree_total(best_solution)
-
-# temperatures_run = 0
-
-best_solution = simulatedAnnealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate)
-
-# Show some info about instance
-# print('Matrix with original instance data:')
-# print(original_graph)
-
-# print(f'Total number of vertices on instance: {total_vertices}')
-# print(f'Total number of edges on instance: {total_edges}')
-
+best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate)
 
 # Info about initial solution
 print(f'Initial solution: {initial_solution}')
 print(f'Size of initial solution: {len(initial_solution)}')
 
 # Info about best found solution
-# print(f'Went through {temperatures_run} different temperatures')
 print(f'Best solution found: {best_solution}')
 print(f'Value of best solution: {even_degree_total(best_solution)}') 
 print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
