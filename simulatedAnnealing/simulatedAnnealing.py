@@ -87,6 +87,39 @@ def even_degree_total(s: 'set[int]') -> int:
     return total
 
 
+def log_results(filename: str, results: dict, temp: bool) -> None:
+    full_filename = filename + '_-_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
+    folder_name = 'tmp' if temp else 'log'
+
+    content = ''
+    if 'instance' in results:
+        content = content + 'Instance: ' + str(results['instance']) + '\n'
+    content = content + '\nParameters: ' + '\n'
+    if 'initial_temperature' in results:
+        content = content + 'Initial temperature: ' + str(results['initial_temperature']) + '\n'
+    if 'final_temperature' in results:
+        content = content + 'Final temperature: ' + str(results['final_temperature']) + '\n'
+    if 'iterations' in results:
+        content = content + 'Iterations: ' + str(results['iterations']) + '\n'
+    if 'cooling_rate' in results:
+        content = content + 'Cooling rate: ' + str(results['cooling_rate']) + '\n'
+    if 'metropolis_runs' in results:
+        content = content + 'Metropolis runs: ' + str(results['metropolis_runs']) + '\n'
+    if 'initial_solution' in results:
+        content = content + 'Initial solution: ' + str(results['initial_solution']) + '\n'
+        content = content + 'Size of initial solution: ' + str(len(results['initial_solution'])) + '\n'
+    if 'best_solution' in results:
+        content = content + 'Best solution found: ' + str(results['best_solution']) + '\n'
+        content = content + 'Size of best solution found: ' + str(len(results['best_solution'])) + '\n'
+
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    filepath = os.path.join(folder_name, full_filename)
+    with open(filepath, 'w') as logfile:
+        logfile.write(content)
+
+
 def build_original_graph(filename: str) -> 'list[list[int]]':
     """
         Builds and return the graph that is described on file 'filename' inside instances folder
@@ -261,7 +294,7 @@ medium_instance = _ALL_INSTANCES_FILENAMES[9] # 'induced_200_5970.dat'
 large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
 
 # TODO: (maybe) accept this parameter from command line with name of desired instance file
-filename = small_instance
+filename = medium_instance
 
 # Create adjacency matrix and related data
 original_graph = build_original_graph(filename)
@@ -293,5 +326,27 @@ print(f'Size of initial solution: {len(initial_solution)}')
 print(f'Best solution found: {best_solution}')
 print(f'Value of best solution: {even_degree_total(best_solution)}') 
 print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the same as above :P
+
+should_log = False 
+
+if should_log:
+    infos = dict()
+    infos['instance'] = filename
+    infos['initial_solution'] = initial_solution
+    infos['initial_temperature'] = initial_temperature
+    infos['final_temperature'] = final_temperature
+    infos['iterations'] = iterations
+    infos['cooling_rate'] = cooling_rate
+    infos['metropolis_runs'] = metropolis_runs
+    infos['best_solution'] = best_solution 
+
+    log_to_temp = True
+
+    from datetime import datetime
+    log_file = filename.replace('.dat', '')
+
+
+    log_results(log_file, infos, log_to_temp)    
+
 
 print('Cest fini.')
