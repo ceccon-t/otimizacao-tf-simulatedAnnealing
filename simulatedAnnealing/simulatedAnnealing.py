@@ -161,7 +161,8 @@ def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
     #   if is in solution, remove it
     #   if is not in solution, adds it
     global all_vertices
-    flipped = random.choice(list(all_vertices))
+    chosen = random.choice(list(all_vertices))
+    flipped = itov(chosen)
     neighbor = set(s)
     if flipped in neighbor:
         neighbor.remove(flipped)
@@ -260,7 +261,7 @@ medium_instance = _ALL_INSTANCES_FILENAMES[9] # 'induced_200_5970.dat'
 large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
 
 # TODO: (maybe) accept this parameter from command line with name of desired instance file
-filename = medium_instance
+filename = small_instance
 
 # Create adjacency matrix and related data
 original_graph = build_original_graph(filename)
