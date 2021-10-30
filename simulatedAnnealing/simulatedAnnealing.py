@@ -17,10 +17,10 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Parametros para o simulated annealing e indice do arquivo")
     parser.add_argument("index", metavar="INDEX", type=int, help="Indice do arquivo")
-    parser.add_argument('--initial_temperature', "-it", type=int, default=0.99)
-    parser.add_argument('--final_temperature', "-ft", type=int, default=0.2)
+    parser.add_argument('--initial_temperature', "-it", type=float, default=0.99)
+    parser.add_argument('--final_temperature', "-ft", type=float, default=0.2)
     parser.add_argument('--iterations', "-i", type=int, default=10)
-    parser.add_argument('--cooling_rate', "-cr", type=int, default=0.99)
+    parser.add_argument('--cooling_rate', "-cr", type=float, default=0.99)
     parser.add_argument('--metropolis_runs', "-mr", type=int, default=1000)
     return parser.parse_args()
 
