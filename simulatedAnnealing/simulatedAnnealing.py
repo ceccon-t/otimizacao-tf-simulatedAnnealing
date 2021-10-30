@@ -3,6 +3,26 @@ import math
 import random
 import time
 from datetime import datetime
+import argparse
+
+
+######################################################
+####  ARGPARSE FUNCTIONS ###############################
+######################################################
+
+
+def parse_args():
+    """
+        Retorna uma estrutura com os argumentos passados para o programa.
+    """
+    parser = argparse.ArgumentParser(description="Parametros para o simulated annealing e indice do arquivo")
+    parser.add_argument("index", metavar="INDEX", type=int, help="Indice do arquivo")
+    parser.add_argument('--initial_temperature', "-it", type=int, default=0.99)
+    parser.add_argument('--final_temperature', "-ft", type=int, default=0.2)
+    parser.add_argument('--iterations', "-i", type=int, default=10)
+    parser.add_argument('--cooling_rate', "-cr", type=int, default=0.99)
+    parser.add_argument('--metropolis_runs', "-mr", type=int, default=1000)
+    return parser.parse_args()
 
 
 ######################################################
@@ -295,13 +315,15 @@ _ALL_INSTANCES_FILENAMES = [
     'induced_700_122325.dat'    # 16
 ]
 
+args = parse_args()
+
 # Some instances of varying scale to facilitate tests
 small_instance = _ALL_INSTANCES_FILENAMES[0] # 'induced_7_10.dat'
 medium_instance = _ALL_INSTANCES_FILENAMES[9] # 'induced_200_5970.dat'
 large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
 
 # TODO: (maybe) accept this parameter from command line with name of desired instance file
-filename = medium_instance
+filename = _ALL_INSTANCES_FILENAMES[args.index]
 
 # Create adjacency matrix and related data
 original_graph = build_original_graph(filename)
@@ -310,14 +332,13 @@ all_vertices = set(range(total_vertices))
 
 
 # Parameters
-# TODO: (maybe) allow these to be passed from  command line
-# Parameter variable        # How it is written on slides
-initial_solution = set()    # s     : create with some algorithm (greedy, etc.)
-initial_temperature = 0.99  # Ti    : check if we should use idea proposed on slides or something else
-final_temperature = 0.2     # Tf    : end criteria, but we can use another one as well
-iterations = 10             # I     : ideally proportional to size of neighborhood
-cooling_rate = 0.99          # r     : ideally in range [0.8, 0.99]
-metropolis_runs = 1000       # how many times should the Metropolis algorithm run for each iteration with fixed temperature
+# Parameter variable                            # How it is written on slides
+initial_solution = set()                        # s     : create with some algorithm (greedy, etc.)
+initial_temperature =  args.initial_temperature # Ti    : check if we should use idea proposed on slides or something else
+final_temperature = args.final_temperature      # Tf    : end criteria, but we can use another one as well
+iterations = args.iterations                    # I     : ideally proportional to size of neighborhood
+cooling_rate = args.cooling_rate                # r     : ideally in range [0.8, 0.99]
+metropolis_runs = args.metropolis_runs          # how many times should the Metropolis algorithm run for each iteration with fixed temperature
 
 
 # RUN SIMULATED ANNEALING
