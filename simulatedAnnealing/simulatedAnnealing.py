@@ -180,7 +180,7 @@ def boltzmann(x: float, temperature: float) -> float:
         Probability of picking a solution with delta 'x' that is worse than current best one
     """
     e = math.e
-    exponent = - x / temperature
+    exponent = x / temperature
     return e ** exponent
 
 
@@ -258,7 +258,7 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
                 best_value = current_value
         else:
             random_value = random.random() 
-            probability = boltzmann(-delta, temperature)
+            probability = boltzmann(delta, temperature)
             if random_value < probability:
                 current = neighbor
                 current_value = neighbor_value
