@@ -215,6 +215,43 @@ def build_initial_solution(all_vertices: 'set[int]') -> 'set[int]':
         print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
     return initial_solution
 
+def build_initial_solution_random(all_vertices: 'set[int]') -> 'set[int]':
+    initial_solution = set()
+    total_vertices = len(all_vertices)
+    range_total_vertices = list(range(total_vertices))
+    random.shuffle(range_total_vertices)
+    # Add-1
+    print('Starting Add-1: Trying to add single vertices on initial solution')
+    for i in range_total_vertices:
+        v = itov(i)
+        tentative_solution = set(initial_solution)
+        tentative_solution.add(v)
+        if is_valid_solution_full(tentative_solution):
+            initial_solution = set(tentative_solution)
+    print(f'Finished Add-1, size of initial solution: {len(initial_solution)}')
+
+    # Add-2
+    use_add_2 = True    # Doesnt make any difference for small solution, makes small difference for medium and large solutions
+    if use_add_2:
+        print('Starting Add-2: Trying to add pairs of vertices on initial solution')
+        # print(f'All vertices: {all_vertices}')
+        excluded_vertices = list(all_vertices.difference(initial_solution))
+        random.shuffle(excluded_vertices)
+        for j in excluded_vertices:
+            excluded_vertices_difference = excluded_vertices.copy()
+            excluded_vertices_difference.remove(j)
+            random.shuffle(excluded_vertices_difference)
+            for i in excluded_vertices_difference:
+                v = itov(i)
+                u = itov(j)
+                tentative_solution = set(initial_solution)
+                tentative_solution.add(v)
+                tentative_solution.add(u)
+                if is_valid_solution_full(tentative_solution):
+                    initial_solution = set(tentative_solution)
+        print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
+    return initial_solution
+
 
 def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
     # Chooses a random vertex and 'flips' it, that is
@@ -344,6 +381,14 @@ metropolis_runs = args.metropolis_runs          # how many times should the Metr
 # RUN SIMULATED ANNEALING
 initial_time = time.time()
 initial_solution = build_initial_solution(all_vertices)
+
+# Possible optimizations?
+initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
+best_initial_sol = max(initial_solutions, key=even_degree_total)
+worst_initial_sol = min(initial_solutions, key=even_degree_total)
+initial_solution = best_initial_sol
+initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
+iterations = total_vertices
 
 best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 final_time = time.time()
