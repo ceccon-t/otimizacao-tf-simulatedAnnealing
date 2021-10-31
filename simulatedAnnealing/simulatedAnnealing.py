@@ -4,6 +4,7 @@ import random
 import time
 from datetime import datetime
 import argparse
+import numpy as np
 
 
 ######################################################
@@ -70,7 +71,7 @@ def degree_on_original(v: int) -> int:
     """
     global original_graph  # Maybe we can have this as a parameter, but need to check if that wouldnt add too much overhead
     i = vtoi(v)
-    return sum(original_graph[i])
+    return np.sum(original_graph[i])
 
 
 def degree_on_solution(v: int, s: 'set[int]') -> int:
@@ -82,7 +83,7 @@ def degree_on_solution(v: int, s: 'set[int]') -> int:
     degree = 0
     for u in s:
         j = vtoi(u)
-        degree += original_graph[i][j]
+        degree += original_graph[i, j]
     return degree
 
 
@@ -154,13 +155,11 @@ def build_original_graph(filename: str) -> 'list[list[int]]':
     # Full path to file containing instance
     filepath = os.path.join('..', 'dados', 'instancias', filename)
 
-    original_graph = [[]]
-
     with open(filepath, 'r') as instance:
         header = instance.readline()
         total_vertices, total_edges = parse_int_pair(header)
 
-        original_graph = [[0 for j in range(total_vertices)] for i in range(total_vertices)]
+        original_graph = np.zeros((total_vertices, total_vertices))
         
         for _ in range(total_edges):
             v1, v2 = parse_int_pair(instance.readline())
@@ -168,7 +167,7 @@ def build_original_graph(filename: str) -> 'list[list[int]]':
             j = vtoi(v2)
             add_edge(original_graph, i, j)
     
-    return original_graph 
+        return original_graph 
 
 
 ######################################################
@@ -364,7 +363,7 @@ filename = _ALL_INSTANCES_FILENAMES[args.index]
 
 # Create adjacency matrix and related data
 original_graph = build_original_graph(filename)
-total_vertices = len(original_graph[0])
+total_vertices = original_graph.shape[0]
 all_vertices = set(range(total_vertices))
 
 
