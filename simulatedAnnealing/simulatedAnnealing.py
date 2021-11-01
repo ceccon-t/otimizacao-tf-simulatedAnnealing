@@ -251,6 +251,43 @@ def build_initial_solution_random(all_vertices: 'set[int]') -> 'set[int]':
         print(f'Finished Add-2, size of initial solution: {len(initial_solution)}')
     return initial_solution
 
+def build_independent_set(base_vertex: int) -> 'set[int]':
+    independent_set = set([base_vertex])
+    current_sol = np.zeros(total_vertices)
+    current_sol[base_vertex - 1] = 1
+
+    not_independent_vertices = np.matmul(original_graph, current_sol)
+    possible_vertices = np.argwhere(not_independent_vertices==0)
+    while (possible_vertices.size != 0):
+        current_vertex = random.choice(possible_vertices)[0] + 1
+
+        independent_set.add(current_vertex)
+        current_sol[current_vertex - 1] = 1
+
+        not_independent_vertices = np.matmul(original_graph, current_sol) + current_sol
+        possible_vertices = np.argwhere(not_independent_vertices==0)
+    
+    return independent_set
+
+
+def complete_independent_set(s):
+    for vertex in s:
+        adj = original_graph[vertex-1]
+        neighbors = np.argwhere(adj==1).flatten() + 1
+
+        for i in range(neighbors.shape[0]):
+            for j in range(i,neighbors.shape[0]):
+                temp_set = s.copy()
+                temp_set.add(i)
+                temp_set.add(j)
+
+                if is_valid_solution_full(temp_set):
+                    s = temp_set
+                    break
+            else:
+                continue
+            break
+    return s
 
 def neighborhood_1flip(s: 'set[int]') -> 'set[int]':
     # Chooses a random vertex and 'flips' it, that is
@@ -274,13 +311,17 @@ def choose_neighbor(s: 'set[int]') -> 'set[int]':
     return neighborhood_1flip(s) 
 
 
-def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
+def metropolis(s: 'set[int]', current_set, temperature: float, runs: int) -> 'set[int]':
     best_found = set(s)
     best_value = even_degree_total(best_found)
+    best_set = current_set
+
     current = set(s)
     current_value = even_degree_total(current)
     for _ in range(runs):
-        neighbor = choose_neighbor(current) # Choose neighbor
+        neighbor_set = build_independent_set(random.sample(current_set,1)[0])
+        neighbor = complete_independent_set(neighbor_set)
+        #neighbor, neighbor_set = choose_neighbor(current) # Choose neighbor
         
         neighbor_value = even_degree_total(neighbor)
         # print(f'Neighbor: {neighbor}, Value: {neighbor_value}')
@@ -289,22 +330,27 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
         if delta >= 0:  # our case is a maximization problem
             current = neighbor
             current_value = neighbor_value
+            current_set = neighbor_set
             if current_value > best_value and is_valid_solution_full(current):
                 best_found = current
                 best_value = current_value
+                best_set = current_set
         else:
             random_value = random.random() 
             probability = boltzmann(delta, temperature)
             if random_value < probability:
                 current = neighbor
                 current_value = neighbor_value
-    return best_found 
+                current_set = neighbor_set
+    return best_found, best_set
 
 
-def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, metropolis_runs: int) -> 'set[int]':
+def simulated_annealing(s: 'set[int]', initial_set,  Ti: float, Tf: float, I: int, r: float, metropolis_runs: int) -> 'set[int]':
     best_solution = s 
     current_solution = s
     best_value = even_degree_total(best_solution)
+    best_set = initial_set
+    current_set = initial_set
     temperature = Ti
     final_temperature = Tf
     cooling_rate = r
@@ -314,13 +360,14 @@ def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, m
         print(f'Current best solution has value: {best_value}')
         # Some iterations with constant T
         for _ in range(I):
-            current_solution = metropolis(current_solution, temperature, metropolis_runs)
+            current_solution, current_set = metropolis(current_solution, current_set, temperature, metropolis_runs)
             current_value = even_degree_total(current_solution)
             # print(f'Cur value: {current_value}, best value: {best_value} ')
             if current_value > best_value:
                 # print(f'Found better')
                 best_solution = current_solution
                 best_value = current_value
+                best_set = current_set
 
         temperature = cooling_rate * temperature
 
@@ -389,7 +436,13 @@ initial_solution = best_initial_sol
 initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
 iterations = total_vertices
 
-best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
+a = build_independent_set(random.choice(list(range(1,total_vertices+1))))
+b = complete_independent_set(a)
+initial_solution = b
+initial_set = a
+
+
+best_solution = simulated_annealing(initial_solution, initial_set, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 final_time = time.time()
 total_time = final_time - initial_time
 
