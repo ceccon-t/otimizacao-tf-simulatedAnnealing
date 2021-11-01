@@ -382,12 +382,12 @@ initial_time = time.time()
 initial_solution = build_initial_solution(all_vertices)
 
 # Possible optimizations?
-initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
-best_initial_sol = max(initial_solutions, key=even_degree_total)
-worst_initial_sol = min(initial_solutions, key=even_degree_total)
-initial_solution = best_initial_sol
-initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
-iterations = total_vertices
+#initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
+#best_initial_sol = max(initial_solutions, key=even_degree_total)
+#worst_initial_sol = min(initial_solutions, key=even_degree_total)
+#initial_solution = best_initial_sol
+#initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
+#iterations = total_vertices
 
 best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 final_time = time.time()
