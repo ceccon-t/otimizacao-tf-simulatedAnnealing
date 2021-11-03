@@ -1,0 +1,15 @@
+Instance: induced_500_12475.dat
+
+Parameters: 
+Initial temperature: 0.99
+Final temperature: 0.2
+Iterations: 500
+Cooling rate: 0.99
+Metropolis runs: 1000
+
+Results: 
+Time to run: 61385.04008626938 (seconds)
+Initial solution: {1, 2, 3, 5, 135, 8, 9, 10, 14, 270, 17, 19, 21, 25, 30, 31, 414, 34, 40, 297, 44, 46, 306, 54, 61, 65, 69, 453, 329, 202, 76, 89, 96, 234, 494, 116}
+Size of initial solution: 36
+Best solution found: {1, 257, 3, 5, 134, 135, 8, 9, 10, 264, 395, 13, 14, 270, 17, 274, 19, 276, 21, 23, 25, 283, 414, 31, 34, 164, 293, 40, 297, 44, 306, 50, 178, 54, 185, 61, 65, 451, 69, 453, 198, 328, 329, 202, 458, 76, 82, 88, 344, 345, 89, 478, 95, 96, 484, 359, 234, 107, 494, 495, 116, 250, 123}
+Size of best solution found: 63

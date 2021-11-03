@@ -1,0 +1,15 @@
+Instance: induced_500_62375.dat
+
+Parameters: 
+Initial temperature: 0.99
+Final temperature: 0.2
+Iterations: 500
+Cooling rate: 0.99
+Metropolis runs: 1000
+
+Results: 
+Time to run: 6807.471407175064 (seconds)
+Initial solution: {1, 2, 4, 5, 6, 72, 40, 12, 76, 48, 17, 18, 242, 500}
+Size of initial solution: 14
+Best solution found: {1, 2, 4, 5, 6, 72, 12, 76, 79, 17, 18, 355, 40, 233, 48, 242, 500}
+Size of best solution found: 17
