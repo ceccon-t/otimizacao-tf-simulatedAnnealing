@@ -4,6 +4,7 @@ import random
 import time
 from datetime import datetime
 import argparse
+import matplotlib.pyplot as plt
 
 
 ######################################################
@@ -138,6 +139,8 @@ def log_results(filename: str, results: dict, folder_name: str) -> None:
     if 'best_solution' in results:
         content = content + 'Best solution found: ' + str(results['best_solution']) + '\n'
         content = content + 'Size of best solution found: ' + str(len(results['best_solution'])) + '\n'
+    if 'solutions_values' in results:
+        content = content + 'Solutions Values: ' + str(results['solutions_values']) + '\n'
 
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
@@ -145,6 +148,35 @@ def log_results(filename: str, results: dict, folder_name: str) -> None:
     filepath = os.path.join(folder_name, full_filename)
     with open(filepath, 'w') as logfile:
         logfile.write(content)
+
+def log_graph(graph_file, solutions_values, folder_name):
+    full_filename = graph_file + '_-_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.jpg'
+    filepath = os.path.join(folder_name, full_filename)
+    x = list(range(len(solutions_values)))
+    y = solutions_values
+
+    size_text = 22
+    size_values = 15
+
+    plt.figure(figsize=(10, 10), dpi=80)
+    #plt.grid()
+
+    range_max = max(x)
+    range_min = min(x)
+    step = round((range_max-range_min)/10)
+    xticks = range(range_min, range_max + step, step)
+
+    yticks = y
+
+    plt.rcParams.update({'font.size': size_text })
+    plt.yticks(yticks, fontsize = size_values)
+    plt.xticks(xticks, fontsize = size_values)
+    plt.title('SA Execution')
+    plt.xlabel('Iteration', fontsize = size_text)
+    plt.ylabel('Solution Value', fontsize = size_text)
+    
+    plt.plot(x, y)
+    plt.savefig(filepath)
 
 
 def build_original_graph(filename: str) -> 'list[list[int]]':
@@ -301,12 +333,14 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
 
 
 def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, metropolis_runs: int) -> 'set[int]':
+    global solutions_values
     best_solution = s 
     current_solution = s
     best_value = even_degree_total(best_solution)
     temperature = Ti
     final_temperature = Tf
     cooling_rate = r
+    solutions_values.append(best_value)
 
     while temperature >= final_temperature:
         print(f'Running iterations for temperature {temperature}')
@@ -316,6 +350,7 @@ def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, m
             current_solution = metropolis(current_solution, temperature, metropolis_runs)
             current_value = even_degree_total(current_solution)
             # print(f'Cur value: {current_value}, best value: {best_value} ')
+            solutions_values.append(best_value)
             if current_value > best_value:
                 # print(f'Found better')
                 best_solution = current_solution
@@ -388,6 +423,9 @@ initial_solution = build_initial_solution(all_vertices)
 #initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
 #iterations = total_vertices
 
+# Solution values (for logging)
+solutions_values = []
+
 best_solution = simulated_annealing(initial_solution, initial_temperature, final_temperature, iterations, cooling_rate, metropolis_runs)
 final_time = time.time()
 total_time = final_time - initial_time
@@ -417,10 +455,13 @@ if should_log:
     infos['cooling_rate'] = cooling_rate
     infos['metropolis_runs'] = metropolis_runs
     infos['best_solution'] = best_solution 
+    infos['solutions_values'] = solutions_values
 
     log_file = filename.replace('.dat', '')
 
     log_results(log_file, infos, args.log_to)    
+    log_graph(log_file, solutions_values, args.log_to)
+
 
 
 print('Cest fini.')
