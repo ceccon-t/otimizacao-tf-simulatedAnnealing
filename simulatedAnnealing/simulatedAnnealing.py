@@ -149,11 +149,14 @@ def log_results(filename: str, results: dict, folder_name: str) -> None:
     with open(filepath, 'w') as logfile:
         logfile.write(content)
 
-def log_graph(graph_file, solutions_values, folder_name):
+def log_graph(graph_file, solutions_values, folder_name, cut = True):
     full_filename = graph_file + '_-_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.jpg'
     filepath = os.path.join(folder_name, full_filename)
-    x = list(range(len(solutions_values)))
-    y = solutions_values
+    if cut:
+        y = solutions_values[:solutions_values.index(max(solutions_values)) + 1]
+    else:
+        y = solutions_values
+    x = list(range(len(y)))
 
     size_text = 22
     size_values = 15
@@ -163,7 +166,7 @@ def log_graph(graph_file, solutions_values, folder_name):
 
     range_max = max(x)
     range_min = min(x)
-    step = round((range_max-range_min)/10)
+    step = math.ceil((range_max-range_min)/10)
     xticks = range(range_min, range_max + step, step)
 
     yticks = y
@@ -171,7 +174,7 @@ def log_graph(graph_file, solutions_values, folder_name):
     plt.rcParams.update({'font.size': size_text })
     plt.yticks(yticks, fontsize = size_values)
     plt.xticks(xticks, fontsize = size_values)
-    plt.title('SA Execution')
+    plt.title(graph_file)
     plt.xlabel('Iteration', fontsize = size_text)
     plt.ylabel('Solution Value', fontsize = size_text)
     
@@ -413,7 +416,8 @@ metropolis_runs = args.metropolis_runs          # how many times should the Metr
 
 # RUN SIMULATED ANNEALING
 initial_time = time.time()
-initial_solution = build_initial_solution(all_vertices)
+#initial_solution = build_initial_solution(all_vertices)
+initial_solution = set()
 
 # Possible optimizations?
 #initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
