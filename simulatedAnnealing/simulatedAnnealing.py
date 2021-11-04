@@ -326,7 +326,7 @@ large_instance = _ALL_INSTANCES_FILENAMES[16] #'induced_700_122325.dat'
 # TODO: (maybe) accept this parameter from command line with name of desired instance file
 filename = medium_instance
 
-instances_to_run = _ALL_INSTANCES_FILENAMES[3:]
+instances_to_run = _ALL_INSTANCES_FILENAMES[8:]
 
 for instance in instances_to_run:
     # Create adjacency matrix and related data
