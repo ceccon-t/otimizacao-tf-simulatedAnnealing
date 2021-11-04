@@ -1,0 +1,4 @@
+Características:
+
+- Vizinhança: Permitir infactibilidade
+- Solução inicial: Usar solução retornada pelo Gurobi (para instâncias onde não foi encontrada solução ótima) como solução inicial para o Simulated Annealing
