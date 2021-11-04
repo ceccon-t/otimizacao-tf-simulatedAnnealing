@@ -1,0 +1,4 @@
+Características:
+
+- Vizinhança: Permitir infactibilidade
+- Solução inicial: Varre grafo original adicionando todos os vértices que não inviabilizariam
