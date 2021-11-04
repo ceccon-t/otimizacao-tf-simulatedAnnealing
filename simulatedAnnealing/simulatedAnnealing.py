@@ -297,7 +297,7 @@ def metropolis(s: 'set[int]', temperature: float, runs: int) -> 'set[int]':
             if random_value < probability:
                 current = neighbor
                 current_value = neighbor_value
-    return best_found 
+    return current, best_found 
 
 
 def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, metropolis_runs: int) -> 'set[int]':
@@ -313,13 +313,13 @@ def simulated_annealing(s: 'set[int]', Ti: float, Tf: float, I: int, r: float, m
         print(f'Current best solution has value: {best_value}')
         # Some iterations with constant T
         for _ in range(I):
-            current_solution = metropolis(current_solution, temperature, metropolis_runs)
-            current_value = even_degree_total(current_solution)
+            current_solution, best_solution_metropolis = metropolis(current_solution, temperature, metropolis_runs)
+            best_value_metropolis = even_degree_total(best_solution_metropolis)
             # print(f'Cur value: {current_value}, best value: {best_value} ')
-            if current_value > best_value:
+            if best_value_metropolis > best_value and is_valid_solution_full(best_solution_metropolis):
                 # print(f'Found better')
-                best_solution = current_solution
-                best_value = current_value
+                best_solution = best_solution_metropolis
+                best_value = best_value_metropolis
 
         temperature = cooling_rate * temperature
 
