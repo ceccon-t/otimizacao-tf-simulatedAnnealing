@@ -22,6 +22,7 @@ def parse_args():
     parser.add_argument('--iterations', "-i", type=int, default=10)
     parser.add_argument('--cooling_rate', "-cr", type=float, default=0.99)
     parser.add_argument('--metropolis_runs', "-mr", type=int, default=1000)
+    parser.add_argument('--log_to', "-lt", type=str, default='')
     return parser.parse_args()
 
 
@@ -109,9 +110,8 @@ def even_degree_total(s: 'set[int]') -> int:
     return total
 
 
-def log_results(filename: str, results: dict, temp: bool) -> None:
+def log_results(filename: str, results: dict, folder_name: str) -> None:
     full_filename = filename + '_-_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.log'
-    folder_name = 'tmp' if temp else 'log'
 
     content = ''
     if 'instance' in results:
@@ -404,7 +404,7 @@ print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the sam
 # Execution time
 print(f'Total time to run this instance: {total_time} (seconds)')
 
-should_log = False 
+should_log = args.log_to != ''
 
 if should_log:
     infos = dict()
@@ -418,12 +418,9 @@ if should_log:
     infos['metropolis_runs'] = metropolis_runs
     infos['best_solution'] = best_solution 
 
-    log_to_temp = True
-
     log_file = filename.replace('.dat', '')
 
-
-    log_results(log_file, infos, log_to_temp)    
+    log_results(log_file, infos, args.log_to)    
 
 
 print('Cest fini.')
