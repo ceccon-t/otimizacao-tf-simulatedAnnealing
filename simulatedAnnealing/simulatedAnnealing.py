@@ -429,12 +429,12 @@ initial_time = time.time()
 initial_solution = build_initial_solution(all_vertices)
 
 # Possible optimizations?
-initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
-best_initial_sol = max(initial_solutions, key=even_degree_total)
-worst_initial_sol = min(initial_solutions, key=even_degree_total)
-initial_solution = best_initial_sol
-initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
-iterations = total_vertices
+#initial_solutions = [build_initial_solution_random(all_vertices) for _ in range(total_vertices)]
+#best_initial_sol = max(initial_solutions, key=even_degree_total)
+#worst_initial_sol = min(initial_solutions, key=even_degree_total)
+#initial_solution = best_initial_sol
+#initial_temperature = even_degree_total(best_initial_sol) - even_degree_total(worst_initial_sol)
+#iterations = total_vertices
 
 a = build_independent_set(random.choice(list(range(1,total_vertices+1))))
 b = complete_independent_set(a)
@@ -458,7 +458,7 @@ print(f'Size of best solution found: {len(best_solution)}')  # Hopefully the sam
 # Execution time
 print(f'Total time to run this instance: {total_time} (seconds)')
 
-should_log = False 
+should_log = True
 
 if should_log:
     infos = dict()
@@ -472,7 +472,7 @@ if should_log:
     infos['metropolis_runs'] = metropolis_runs
     infos['best_solution'] = best_solution 
 
-    log_to_temp = True
+    log_to_temp = False
 
     log_file = filename.replace('.dat', '')
 

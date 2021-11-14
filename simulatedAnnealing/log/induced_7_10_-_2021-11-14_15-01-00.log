@@ -1,0 +1,15 @@
+Instance: induced_7_10.dat
+
+Parameters: 
+Initial temperature: 0.99
+Final temperature: 0.2
+Iterations: 10
+Cooling rate: 0.99
+Metropolis runs: 1000
+
+Results: 
+Time to run: 294.07925271987915 (seconds)
+Initial solution: {0, 3, 4, 7}
+Size of initial solution: 4
+Best solution found: {0, 1, 2, 6, 7}
+Size of best solution found: 5
