@@ -1,4 +1,9 @@
-Para rodar o script:
+# Dependências
+```
+pip install matplotlib
+```
+
+# Para rodar o script
 ```
 python3 simulatedAnnealing.py [-h] [--initial_temperature INITIAL_TEMPERATURE] [--final_temperature FINAL_TEMPERATURE] [--iterations ITERATIONS] [--cooling_rate COOLING_RATE]
                              [--metropolis_runs METROPOLIS_RUNS] [--log_to LOG_TO]
